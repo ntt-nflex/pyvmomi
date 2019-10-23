@@ -194,7 +194,8 @@ def Connect(host='localhost', port=443, user='root', pwd='',
             service="hostd", adapter="SOAP", namespace=None, path="/sdk",
             connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
             version=None, keyFile=None, certFile=None, thumbprint=None,
-            sslContext=None, b64token=None, mechanism='userpass'):
+            sslContext=None, b64token=None, mechanism='userpass',
+            httpProxyHost=None, httpProxyPort=80, sslProxyPath=None):
    """
    Connect to the specified server, login and return the service
    instance object.
@@ -263,7 +264,8 @@ def Connect(host='localhost', port=443, user='root', pwd='',
    si, stub = None, None
    if mechanism == 'userpass':
       si, stub = __Login(host, port, user, pwd, service, adapter, version, path,
-                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout)
+                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout,
+                         httpProxyHost=httpProxyHost, httpProxyPort=httpProxyPort, sslProxyPath=sslProxyPath)
    elif mechanism == 'sspi':
       si, stub = __LoginBySSPI(host, port, service, adapter, version, path,
                                keyFile, certFile, thumbprint, sslContext, b64token, connectionPoolTimeout)
@@ -339,7 +341,8 @@ def GetLocalTicket(si, user):
 
 def __Login(host, port, user, pwd, service, adapter, version, path,
             keyFile, certFile, thumbprint, sslContext,
-            connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC):
+            connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
+            httpProxyHost=None, httpProxyPort=80, sslProxyPath=None):
    """
    Private method that performs the actual Connect and returns a
    connected service instance object.
@@ -375,7 +378,8 @@ def __Login(host, port, user, pwd, service, adapter, version, path,
    """
 
    content, si, stub = __RetrieveContent(host, port, adapter, version, path,
-                                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout)
+                                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout,
+                                         httpProxyHost, httpProxyPort, sslProxyPath)
 
    # Get a ticket if we're connecting to localhost and password is not specified
    if host == 'localhost' and not pwd:
@@ -400,7 +404,8 @@ def __Login(host, port, user, pwd, service, adapter, version, path,
 
 def __LoginBySSPI(host, port, service, adapter, version, path,
                   keyFile, certFile, thumbprint, sslContext, b64token,
-                  connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC):
+                  connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
+                  httpProxyHost=None, httpProxyPort=80, sslProxyPath=None):
    """
    Private method that performs the actual Connect and returns a
    connected service instance object.
@@ -434,7 +439,8 @@ def __LoginBySSPI(host, port, service, adapter, version, path,
    """
 
    content, si, stub = __RetrieveContent(host, port, adapter, version, path,
-                                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout)
+                                         keyFile, certFile, thumbprint, sslContext, connectionPoolTimeout,
+                                         httpProxyHost, httpProxyPort, sslProxyPath)
 
    if b64token is None:
       raise Exception('Token is not defined for sspi login')
@@ -465,7 +471,8 @@ def __Logout(si):
 ## Private method that returns the service content
 
 def __RetrieveContent(host, port, adapter, version, path, keyFile, certFile,
-                      thumbprint, sslContext, connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC):
+                      thumbprint, sslContext, connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
+                      httpProxyHost=None, httpProxyPort=80, sslProxyPath=None):
    """
    Retrieve service instance for connection.
    @param host: Which host to connect to.
@@ -495,7 +502,9 @@ def __RetrieveContent(host, port, adapter, version, path, keyFile, certFile,
    stub = SoapStubAdapter(host, port, version=version, path=path,
                           certKeyFile=keyFile, certFile=certFile,
                           thumbprint=thumbprint, sslContext=sslContext,
-                          connectionPoolTimeout=connectionPoolTimeout)
+                          connectionPoolTimeout=connectionPoolTimeout,
+                          httpProxyHost=httpProxyHost, httpProxyPort=httpProxyPort,
+                          sslProxyPath=sslProxyPath)
 
    # Get Service instance
    si = vim.ServiceInstance("ServiceInstance", stub)
@@ -787,7 +796,8 @@ def SmartStubAdapter(host='localhost', port=443, path='/sdk',
 def SmartConnect(protocol='https', host='localhost', port=443, user='root', pwd='',
                  service="hostd", path="/sdk", connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
                  preferredApiVersions=None, keyFile=None, certFile=None,
-                 thumbprint=None, sslContext=None, b64token=None, mechanism='userpass'):
+                 thumbprint=None, sslContext=None, b64token=None, mechanism='userpass',
+                 httpProxyHost=None, httpProxyPort=80, sslProxyPath=None):
    """
    Determine the most preferred API version supported by the specified server,
    then connect to the specified server using that API version, login and return
@@ -864,7 +874,10 @@ def SmartConnect(protocol='https', host='localhost', port=443, user='root', pwd=
                   thumbprint=thumbprint,
                   sslContext=sslContext,
                   b64token=b64token,
-                  mechanism=mechanism)
+                  mechanism=mechanism,
+                  httpProxyHost=httpProxyHost,
+                  httpProxyPort=httpProxyPort,
+                  sslProxyPath=sslProxyPath)
 
 def SmartConnectNoSSL(protocol='https', host='localhost', port=443, user='root', pwd='',
                       service="hostd", path="/sdk", connectionPoolTimeout=CONNECTION_POOL_IDLE_TIMEOUT_SEC,
