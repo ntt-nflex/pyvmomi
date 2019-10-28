@@ -778,8 +778,8 @@ def SmartStubAdapter(host='localhost', port=443, path='/sdk',
                                              preferredApiVersions,
                                              sslContext,
                                              httpProxyHost,
-                                             httpProxyPort
-                                             )
+                                             httpProxyPort)
+
    if supportedVersion is None:
       raise Exception("%s:%s is not a VIM server" % (host, port))
 
@@ -854,7 +854,10 @@ def SmartConnect(protocol='https', host='localhost', port=443, user='root', pwd=
                                              port,
                                              path,
                                              preferredApiVersions,
-                                             sslContext)
+                                             sslContext,
+                                             httpProxyHost,
+                                             httpProxyPort)
+
    if supportedVersion is None:
       raise Exception("%s:%s is not a VIM server" % (host, port))
 
@@ -942,4 +945,3 @@ def OpenPathWithStub(path, stub, verify=True):
    if stub.cookie:
       headers["Cookie"] = stub.cookie
    return requests.get(url, headers=headers, verify=verify)
-
